@@ -1,18 +1,15 @@
 openapi: 3.0.3
 info:
   title: Library API
-  version: 1.1.0
-  description: STD22001
+  version: 1.0.1
+  description: STD22107
 servers:
   - url: https://library.com
-tags:
-  - Books
-  - Authors
 paths:
   /books:
     get:
       tags:
-        - Books
+        - book
       summary: Get all books
       description: The returned books are ordered by updated datetime.
       operationId: getBooks
@@ -24,23 +21,29 @@ paths:
           schema:
             type: string
         - in: query
-          name: releaseDateMin
-          description: |
-            If  `releaseDateMax` is not provided, `releaseDateMin` is ignored.
-            `releaseDateMin` can not be after `releaseDateMax`.
-          schema:
-            type: string
-            format: date
-          required: false
+          name: filter
+          schema: 
+             properties:
+               startDate:
+                 type: string
+                 format: date
+               endDate:
+                 type: string
+                 format: date  
         - in: query
-          name: releaseDateMax
-          description: |
-            If  `releaseDateMin` is not provided, `releaseDateMax` is ignored.
-            `releaseDateMax` can not be after `releaseDateMin`.
-          schema:
-            type: string
-            format: date
+          name: page
+          description: page number (default 1)
           required: false
+          schema:
+            type: integer
+            default: 1         
+        - in: query
+          name: pageSize
+          description: page size (default 50)
+          required: false
+          schema:
+            type: integer
+            default: 50        
       responses:
         200:
           description: The list of filtered books
@@ -52,8 +55,8 @@ paths:
                   $ref: '#/components/schemas/Book'
     put:
       tags:
-        - Books
-      summary: Create or update a list of books
+        - book
+      summary: Create or update a list of books with author
       operationId: crupdateBooks
       requestBody:
         content:
@@ -61,7 +64,8 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Book'
+                $ref: '#/components/schemas/CrupdateBook'
+
       responses:
         200:
           description: The list of created or updated books
@@ -71,104 +75,81 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Book'
-  /authors:
-    get:
-      summary: Get all authors
-      operationId: getAuthors
-      tags:
-        - Authors
-      parameters:
-        - name: authorName
-          in: query
-          description: |
-            Filter returned authors by given name. 
-            If not provided, then list is not filtered.
-          schema:
-            type: string
-          required: false
-      responses:
-        200:
-          description: The list of filtered authors
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Author'
-    put:
-      summary: Create or update authors
-      operationId: crupdateAuthors
-      tags:
-        - Authors
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Author'
-      responses:
-        200:
-          description: The list of created or updated authors
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Author'
-  /authors/{aId}:
-    delete:
-      summary: Delete an author
-      operationId: deleteAuthor
-      tags:
-        - Authors
-      parameters:
-        - name: aId
-          in: path
-          description: Author identifier to be deleted
-          schema:
-            type: string
-          required: true
-      responses:
-        200:
-          description: The author deleted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Author'
 components:
   schemas:
-    Book:
-      type: object
-      properties:
+    CrupdateBook:
+       type: object
+       properties:
         id:
           type: string
         bookName:
           type: string
-        author:
-          $ref: '#/components/schemas/Author'
         pageNumbers:
           type: integer
         topic:
-          type: string
-          enum:
-            - ROMANCE
-            - COMEDY
-            - OTHER
+          items:
+            $ref: '#/components/schemas/topic'
         releaseDate:
           type: string
           format: date
-    Author:
+    Book:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateBook'
       type: object
+      properties:
+        author:
+          items: 
+            $ref: '#/components/schemas/author'
+    author:
       properties:
         id:
           type: string
-        authorName:
+        name:
           type: string
         sex:
-          $ref: '#/components/schemas/Sex'
-    Sex:
-      type: string
-      enum:
-        - M
-        - F
+          type: string 
+          enum:
+            - M
+            - F    
+    topic:
+      type: object
+      properties:
+        id:
+         type: integer
+        topicName:
+         enum:
+          - ROMANCE
+          - COMEDY
+          - OTHER              
+    updateBookAuthor:
+      type: object
+      properties:
+        bookId:
+          type: integer
+        authorId:
+          type: integer
+    updateTopicBook:
+      type: object
+      properties:
+        bookId:
+          type: integer
+        topicId:
+          type: integer
+    bookWithTopic:
+      allOf:
+        - $ref:  '#/components/schemas/CrupdateBook'
+      type: object
+      properties:
+        topic: 
+           items:
+             $ref: '#/components/schemas/topic'        
+    
+    authorWithTopic:
+      type: object
+      properties:
+        author: 
+          items:
+           $ref: '#/components/schemas/author'
+        topic: 
+          items:
+           $ref: '#/components/schemas/topic'

@@ -75,6 +75,76 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Book'
+  /authors:
+   get:
+      tags:
+        - Authors
+      summary: Get all authors
+      operationId: getAuthors
+      parameters:
+        - in: query
+          name: authorName
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: page
+          description: page number (default 1)
+          required: false
+          schema:
+            type: integer
+            default: 1         
+        - in: path
+          name: pageSize
+          description: page size (default 50)
+          required: false
+          schema:
+            type: integer
+            default: 50          
+      responses:
+        200:
+          description:  get author
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/author'
+   put:
+      tags:
+        - Authors
+      summary: Update authors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/author'
+      responses:
+        200:
+          description: The list of created or updated author
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/author'
+   delete:
+      tags:
+        - Authors
+      summary: delete author
+      description: delete all author
+      responses:
+        "200":
+          description: all  deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/author"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/author"
 components:
   schemas:
     CrupdateBook:

@@ -22,53 +22,31 @@ paths:
             type: string
         - in: query
           name: filter
-          schema: 
-             properties:
-               startDate:
-                 type: string
-                 format: date
-               endDate:
-                 type: string
-                 format: date  
+          schema:
+            properties:
+              startDate:
+                type: string
+                format: date
+              endDate:
+                type: string
+                format: date
         - in: query
           name: page
           description: page number (default 1)
           required: false
           schema:
             type: integer
-            default: 1         
+            default: 1
         - in: query
           name: pageSize
           description: page size (default 50)
           required: false
           schema:
             type: integer
-            default: 50        
+            default: 50
       responses:
         200:
           description: The list of filtered books
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Book'
-    put:
-      tags:
-        - book
-      summary: Create or update a list of books with author
-      operationId: crupdateBooks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CrupdateBook'
-
-      responses:
-        200:
-          description: The list of created or updated books
           content:
             application/json:
               schema:
